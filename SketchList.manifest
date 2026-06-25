@@ -6,7 +6,7 @@
 	"description":	{
 		"":	"Lists every point, line and curve in the active sketch. Click one to select it in the viewport."
 	},
-	"version":	"0.1.0",
+	"version":	"0.1.1",
 	"runOnStartup":	false,
 	"supportedOS":	"windows|mac",
 	"editEnabled":	true
