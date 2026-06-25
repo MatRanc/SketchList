@@ -27,10 +27,14 @@
     #list { list-style: none; margin: 0; padding: 0; }
     #list li {
       padding: 6px 12px; border-bottom: 1px solid var(--border);
-      cursor: pointer; white-space: nowrap; overflow: hidden;
-      text-overflow: ellipsis;
+      cursor: pointer; display: flex; gap: 6px; align-items: baseline;
     }
     #list li:hover { background: var(--hover); }
+    .mark { flex: 0 0 1.2em; text-align: center; }
+    .label {
+      flex: 1; min-width: 0;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
     #empty { padding: 16px 12px; color: var(--muted); }
   </style>
 </head>
@@ -48,7 +52,15 @@
       if (!rows.length) emptyEl.textContent = 'Sketch is empty.';
       for (const r of rows) {
         const li = document.createElement('li');
-        li.textContent = r.label;
+        const mark = document.createElement('span');
+        mark.className = 'mark';
+        // 🔒 fully defined (locked down), ✏️ still editable / under-defined.
+        mark.textContent = r.defined ? '🔒' : '✏️';
+        mark.title = r.defined ? 'Fully defined' : 'Under-defined';
+        const label = document.createElement('span');
+        label.className = 'label';
+        label.textContent = r.label;
+        li.append(mark, label);
         li.title = r.label;
         li.onclick = () => adsk.fusionSendData('select', JSON.stringify({ id: r.id }));
         listEl.appendChild(li);

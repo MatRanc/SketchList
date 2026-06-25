@@ -22,7 +22,10 @@ def build_rows(sketch, fmt):
     def add(label, entity):
         i = len(entities)
         entities[i] = entity
-        rows.append({'id': i, 'label': label})
+        # ponytail: per-entity isFullyConstrained may poke the solver; fine for
+        # normal sketches. If a huge one lags, short-circuit on the whole-sketch
+        # sketch.isFullyConstrained (all True ⇒ every row defined) before looping.
+        rows.append({'id': i, 'label': label, 'defined': bool(entity.isFullyConstrained)})
 
     for i, p in enumerate(sketch.sketchPoints, 1):
         add(f'Point {i} — {pt(p.geometry)}', p)

@@ -10,14 +10,14 @@ class O:
 
 def demo():
     fmt = lambda v: f'{v:.2f}'
-    pt = lambda x, y: O(geometry=O(x=x, y=y))
-    line = O(startSketchPoint=pt(0, 0), endSketchPoint=pt(5, 2))
+    pt = lambda x, y, defined=False: O(geometry=O(x=x, y=y), isFullyConstrained=defined)
+    line = O(startSketchPoint=pt(0, 0), endSketchPoint=pt(5, 2), isFullyConstrained=True)
 
     sketch = O(
-        sketchPoints=[pt(0, 0), pt(5, 2)],
+        sketchPoints=[pt(0, 0, defined=True), pt(5, 2)],
         sketchCurves=O(
             sketchLines=[line],
-            sketchArcs=[O(centerSketchPoint=pt(8, 0), radius=3)],
+            sketchArcs=[O(centerSketchPoint=pt(8, 0), radius=3, isFullyConstrained=False)],
             sketchCircles=[], sketchEllipses=[], sketchFittedSplines=[],
             sketchControlPointSplines=[], sketchConicCurves=[],
         ),
@@ -35,6 +35,9 @@ def demo():
     # ids cover every row and map back to the real object a click would select.
     assert set(entities) == {r['id'] for r in rows}
     assert entities[2] is line, 'id 2 (third row) must be the line'
+
+    # 'defined' carries each entity's isFullyConstrained through to the row.
+    assert [r['defined'] for r in rows] == [True, False, True, False], rows
     print('ok')
 
 
