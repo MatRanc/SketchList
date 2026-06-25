@@ -1,0 +1,9 @@
+settings.json
+.vscode
+__pycache__
+release
+.DS_Store
+
+# Large Autodesk-owned dev reference; keep locally, never ship.
+FusionAPI.chm
+*.zip
