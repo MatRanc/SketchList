@@ -12,7 +12,9 @@ so the list always matches what's on screen.
 > Why: in a busy sketch it's fiddly to pick one specific point or line. SketchList
 > gives you a plain roster of everything and a one-click way to grab it.
 
-<!-- TODO: add a screenshot of the panel next to an open sketch -->
+<p align="center">
+  <img src="resources/screenshot.png" alt="SketchList panel beside an open sketch" width="360">
+</p>
 
 ---
 
