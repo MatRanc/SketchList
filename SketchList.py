@@ -208,23 +208,16 @@ def _scan_rows():
     return scan_sketch(sketch) if sketch else []
 
 
-def refresh_palette():
-    '''Push the current rows to the page (for live updates while editing).'''
-    palette = ui.palettes.itemById(PALETTE_ID)
-    if not palette or not palette.isVisible:
-        return
-    palette.sendInfoToHTML('setEntities', json.dumps({'rows': _scan_rows()}))
-
-
 def palette_incoming_from_html_handler(args: adsk.core.HTMLEventArgs):
-    '''Messages from palette.html.  'ready' -> first fill, 'select' -> pick.'''
+    '''Messages from palette.html.  'scan' -> rows, 'select' -> pick.'''
     action = args.action
     data = json.loads(args.data) if args.data else {}
 
-    if action == 'ready':
+    if action == 'scan':
         # Return the rows directly. You must NOT call sendInfoToHTML from inside
         # an incomingFromHTML handler — Fusion drops it, which was the "open the
-        # sketch twice before it fills" bug. The page renders from this reply.
+        # sketch twice before it fills" bug. The page polls this and renders from
+        # the reply.
         args.returnData = json.dumps({'rows': _scan_rows()})
     elif action == 'select':
         ent = current_entities.get(data.get('id'))
@@ -251,11 +244,9 @@ def command_terminated_handler(args):
             show_palette()        # create + dock on first sketch entry
         elif not palette.isVisible:
             palette.isVisible = True
-        refresh_palette()         # picks up anything just drawn or deleted
+        # Content fills via the page's poll (palette.html); we only show/hide here.
     elif palette and palette.isVisible:
         palette.isVisible = False  # left sketch edit -> hide
-    # ponytail: no debounce — commandTerminated is low-frequency for sketch
-    # edits. Add DirectName's deferred-scan pattern only if huge sketches lag.
 
 
 # =============================================================================
@@ -272,5 +263,4 @@ def command_execute_handler(args: adsk.core.CommandEventArgs):
     if palette and palette.isVisible:
         palette.isVisible = False
     else:
-        show_palette()
-        refresh_palette()
+        show_palette()  # content fills via the page's poll

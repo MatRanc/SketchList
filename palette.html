@@ -2,9 +2,8 @@
 <!--
   palette.html - the Sketch List UI.
 
-  Python -> JS :  palette.sendInfoToHTML('setEntities', '{"rows":[...]}')
-                  arrives at window.fusionJavaScriptHandler.handle('setEntities', data).
-  JS -> Python :  adsk.fusionSendData('select', '{"id":N}')  on a row click.
+  JS -> Python :  adsk.fusionSendData('scan', '{}')    -> reply '{"rows":[...]}' (polled)
+                  adsk.fusionSendData('select', '{"id":N}')  on a row click.
 -->
 <html lang="en">
 <head>
@@ -56,30 +55,26 @@
       }
     }
 
-    // Tell Python we're ready; it replies with the initial rows (Python can't
-    // push to us from inside this handler, so it returns them here instead).
-    window.addEventListener('DOMContentLoaded', async () => {
+    // Ask Python for the current rows and render only if they changed (so we
+    // don't clobber :hover/clicks or flicker every tick). Returning the rows in
+    // the reply is the one reliable Python->JS path; pushes get dropped when the
+    // page isn't ready, which is what made the list need a second click.
+    // ponytail: 400ms poll over the reliable reply channel sidesteps the event
+    // race. Go event-driven only if this ever shows up in profiling.
+    let lastJson = null;
+    async function refresh() {
       try {
-        const reply = JSON.parse(await adsk.fusionSendData('ready', '{}'));
-        render(reply.rows || []);
-      } catch (e) {
-        render([]);
-      }
-    });
+        const json = await adsk.fusionSendData('scan', '{}');
+        if (json === lastJson) return;
+        lastJson = json;
+        render(JSON.parse(json).rows || []);
+      } catch (e) { /* keep last render */ }
+    }
 
-    // Messages pushed FROM Python.
-    window.fusionJavaScriptHandler = {
-      handle: function (action, data) {
-        try {
-          if (action === 'setEntities') {
-            render((JSON.parse(data || '{}').rows) || []);
-          }
-        } catch (e) {
-          return 'FAILED: ' + e;
-        }
-        return 'OK';
-      }
-    };
+    window.addEventListener('DOMContentLoaded', () => {
+      refresh();
+      setInterval(refresh, 400);
+    });
   </script>
 </body>
 </html>
