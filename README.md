@@ -125,4 +125,4 @@ the resulting zip to the matching GitHub release tag.
   MIT-licensed [`thomasa88lib`](https://github.com/thomasa88/thomasa88lib) — see
   `thomasa88lib/LICENSE`.
 - `FusionAPI.chm` is © Autodesk, included as a development reference only.
-- SketchList is MIT licensed — see `LICENSE-MIT`.
+- SketchList is licensed under the GNU Affero General Public License v3.0 — see [LICENSE](LICENSE).
